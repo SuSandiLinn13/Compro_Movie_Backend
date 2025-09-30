@@ -1,2 +1,0 @@
-# YouWereHere
-Adv Compro Project
