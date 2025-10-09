@@ -12,7 +12,10 @@ logger = logging.getLogger("movies route")
 logging.basicConfig(level=logging.INFO)
 
 @movieRouter.post("/movies", response_model=MovieResponse)
-async def create_movie(movie: MovieCreate):
+async def create_movie(
+    movie: MovieCreate,
+    current_user: int = Depends(get_current_user)
+):
     values = {
         "title": movie.title,
         "description": movie.description,
@@ -107,4 +110,16 @@ async def update_movie_route(
         )
     return MovieResponse(
         message = "Movie updated successfully", movie= Movie(**updated_movie)
+    )
+
+@movieRouter.delete("/remove/{movie_id}", response_model=MovieResponse)
+@handle_route_errors("Deleting movie")
+async def remove_movie_route(movie_id: int):
+    deleted_movie = await delete_movie(movie_id)
+    if not deleted_movie:
+        raise HTTPException(
+            status_code= status.HTTP_404_NOT_FOUND, detail="Movie not found"
+        )
+    return MovieResponse(
+        message="Movie deleted successfully", movie = Movie(**deleted_movie)
     )

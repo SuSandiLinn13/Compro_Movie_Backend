@@ -1,0 +1,91 @@
+from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+from models.users import UserCreate, UserLogin, UserOut
+from queries.users import add_user, get_user_by_username, delete_user
+from auth.auth import verify_password, create_access_token, get_current_user
+import logging
+
+# --- Setup router and logger ---
+userRouter = APIRouter(tags=["users"])
+logger = logging.getLogger("users route")
+logging.basicConfig(level=logging.INFO)
+
+
+# ✅ Register User
+@userRouter.post("/register", response_model=UserOut)
+async def register_user(user: UserCreate):
+    logger.info("User Registration")
+    response = await add_user(user.username, user.email, user.password)
+    if "error" in response:
+        logger.warning(response['error'])
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail=response['error']
+        )
+    return UserOut(**response)
+
+
+# ✅ Sign In User
+@userRouter.post("/signin")
+async def signin_user(user: UserLogin):
+    logger.info("Log in user .......")
+    user_data = await get_user_by_username(user.username)
+    if not user_data:
+        logger.warning("User not found....")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail='user not found'
+        )
+    if not verify_password(user.password, user_data["password"]):
+        logger.warning("Invalid Credentials...")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
+        )
+
+    access_token = create_access_token(
+        data={"sub": str(user_data["id"])}, remember_me=user.remember_me
+    )
+
+    logger.info(f"Login successful for {user_data['id']}")
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "username": user_data["username"],
+    }
+
+
+# ✅ Delete user by ID (must be the same user)
+@userRouter.delete("/delete/{user_id}", response_model=UserOut)
+async def delete_user_by_id(
+    user_id: int,
+    # current_user: dict = Depends(get_current_user)
+):
+    # logger.info(f"User {current_user} attempting to delete user {user_id}")
+
+    # # Only allow user to delete their own account
+    # if current_user["id"] != user_id:
+    #     raise HTTPException(
+    #         status_code=status.HTTP_403_FORBIDDEN,
+    #         detail="You can only delete your own account"
+    #     )
+
+    deleted_user = await delete_user(user_id)
+    if not deleted_user:
+        logger.warning(f"Failed to delete user {user_id} or user not found")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    return UserOut(**deleted_user)
+
+
+# ✅ Delete current authenticated user
+# @userRouter.delete("/delete/me", response_model=UserOut)
+# async def delete_my_account(current_user: dict = Depends(get_current_user)):
+#     logger.info(f"Deleting current user: {current_user}")
+#     deleted_user = await delete_user(current_user["id"])
+#     if not deleted_user:
+#         logger.warning("Failed to delete user or user not found!!!!")
+#         raise HTTPException(
+#             status_code=status.HTTP_400_BAD_REQUEST,
+#             detail="Failed to delete user or user not found"
+#         )
+#     return UserOut(**deleted_user)

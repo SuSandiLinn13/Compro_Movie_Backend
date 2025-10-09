@@ -66,3 +66,7 @@ async def update_movie(
     RETURNING *
     """
     return await database.fetch_one(query = query, values = values)
+
+async def delete_movie(movie_id: int)-> Optional[dict[str, Any]]:
+    query = "DELETE FROM movies WHERE movie_id = :movie_id RETURNING *"
+    return await database.fetch_one(query=query, values={"movie_id": movie_id})

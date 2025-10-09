@@ -25,3 +25,8 @@ class UserOut(BaseModel):
     id: int
     username: str
     email: EmailStr
+
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str
+    username: str

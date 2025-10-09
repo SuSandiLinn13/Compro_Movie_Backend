@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter, HTTPException, status, Depends
+from fastapi.security import OAuth2PasswordRequestForm
 from models.users import *
 from queries.users import *
 import logging
@@ -19,7 +20,7 @@ async def register_user(user: UserCreate):
         )
     return UserOut(**response)
 
-@userRouter.post("/signin")
+@userRouter.post("/signin", response_model=TokenResponse)
 async def signin_user(user: UserLogin):
     logger.info("Log in user .......")
     user_data = await get_user_by_username(user.username)
@@ -43,14 +44,7 @@ async def signin_user(user: UserLogin):
         "username": user_data["username"],
     }
 
-@userRouter.delete("/delete", response_model = UserOut)
-async def delete_user_account(current_user: str = Depends(get_current_user)):
-    logger.info(f"Deleting user {current_user}")
-    deleted_user = await delete_user(int(current_user))
-    if not delete_user:
-        logger.warning("Failed to delete user or user not found!!!!")
-        raise HTTPException(
-            status_code = status.HTTP_400_BAD_REQUEST,
-            detail = "Failed to delete user or user not found"
-        )
-    return UserOut(**deleted_user)
+@userRouter.post("/signout")
+async def signout_user(current_user: int = Depends(get_current_user)):
+    logger.info(f"User {current_user} signed out successfully")
+    return {"message": "User signed out successfully"}

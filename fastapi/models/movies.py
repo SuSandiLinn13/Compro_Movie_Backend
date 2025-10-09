@@ -24,10 +24,10 @@ class MovieCreate(BaseModel):
     released_date: Optional[date] = None
 
 class MovieResponse(BaseModel):
-    message: str
-    movie_id: int
-    title: str
-    director: str
+    message: Optional[str] = None
+    movie_id: Optional[int] = None
+    title: Optional[str] = None
+    director: Optional[str] = None
 
 class MovieListItem(BaseModel):
     id: int
@@ -39,14 +39,6 @@ class MovieListResponse(BaseModel):
 
 class MovieDetailResponse(BaseModel):
     movie_detail: Movie
-
-class MovieResponse(BaseModel):
-    message: str
-    movie: Movie
-
-class MoviesResponse(BaseModel):
-    message: str
-    movies : dict
 
 class MovieUpdate(BaseModel):
     movie_id: int
