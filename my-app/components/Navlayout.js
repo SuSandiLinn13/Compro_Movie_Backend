@@ -1,19 +1,21 @@
-import React from "react";
-import HeadNavigationBar from "./HeadNav";
-import BottomNavigationBar from "./BottomNav";
+// components/NavigationLayout.js
+"use client";
+
+import HeadNav from "@/components/HeadNav";
+import BottomNavigationBar from "@/components/BottomNav";
 
 const NavigationLayout = ({ children }) => {
   return (
     <>
-      {/* Top header navigation */}
-      <HeadNavigationBar />
+      {/* ✅ Top navigation bar */}
+      <HeadNav />
 
-      {/* Page content */}
-      <main style={{ paddingBottom: "60px" }}>
+      {/* ✅ Main content */}
+      <main style={{ minHeight: "100vh", paddingBottom: "64px" }}>
         {children}
       </main>
 
-      {/* Bottom footer navigation */}
+      {/* ✅ Fixed bottom navigation bar */}
       <BottomNavigationBar />
     </>
   );

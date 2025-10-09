@@ -1,7 +1,7 @@
-import Image from "next/image";
+// import Image from "next/image";
 // import styles from "./page.module.css";
 
-import api from "@/lib/axios"
+// import api from "@/lib/axios"
 
 export default function Home(){
   return(

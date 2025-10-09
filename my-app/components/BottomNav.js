@@ -1,9 +1,9 @@
 import * as React from "react";
 import { AppBar, Toolbar, Typography, Box, Link as MuiLink } from "@mui/material";
 import Link from "next/link";
-// import FacebookIcon from "@mui/icons-material/Facebook";
-// import InstagramIcon from "@mui/icons-material/Instagram";
-// import TwitterIcon from "@mui/icons-material/Twitter";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
 
 const BottomNavigationBar = () => {
   return (

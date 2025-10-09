@@ -1,12 +1,12 @@
 services:
-  # next-app:
-  #   build: ./my-app
-  #   container_name: my-next-app
-  #   ports:
-  #     - "3000:3000"
-  #   volumes:
-  #     - ./my-app:/app
-  #     - /app/node_modules
+  next-app:
+    build: ./my-app
+    container_name: my-next-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./my-app:/app
+      - /app/node_modules
 
   postgres:
     image: postgres:13-alpine

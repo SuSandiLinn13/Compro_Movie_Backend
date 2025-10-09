@@ -1,7 +1,7 @@
 import * as React from "react";
 import { AppBar, Toolbar, Typography, Box, InputBase, Avatar } from "@mui/material";
 import { styled, alpha } from '@mui/material/styles';
-// import SearchIcon from '@mui/icons-material/Search';
+import SearchIcon from '@mui/icons-material/Search';
 import Link from "next/link";
 
 // Styled search bar
