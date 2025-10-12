@@ -1,10 +1,18 @@
-import RootLayout from "./RootLayout";
+// app/layout.js
+import { AuthProvider } from "@/contexts/AuthContext";
+import NavigationLayout from "@/components/Navlayout";
+import "./globals.css";
 
-export const metadata = {
-  title: "Movie App",
-  description: "You were Here movie app with NextJS and FastAPI",
-};
-
-export default function Layout({ children }) {
-  return <RootLayout>{children}</RootLayout>;
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <AuthProvider>
+          <NavigationLayout>
+            {children}
+          </NavigationLayout>
+        </AuthProvider>
+      </body>
+    </html>
+  );
 }
