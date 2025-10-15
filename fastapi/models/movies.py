@@ -2,7 +2,7 @@
 
 from typing import List, Optional
 from datetime import datetime, date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class Movie(BaseModel):
   movie_id: int
@@ -14,6 +14,9 @@ class Movie(BaseModel):
   released_date: date
   available: bool
   created_at: datetime
+  poster_url: str
+  imdb_rating: float   
+  type: str            
 
 class MovieCreate(BaseModel):
     title: str
@@ -22,6 +25,7 @@ class MovieCreate(BaseModel):
     genre: Optional[List[str]] = None
     casts: Optional[List[str]] = None
     released_date: Optional[date] = None
+    poster_url: Optional[str] = None
 
 class MovieResponse(BaseModel):
     message: Optional[str] = None
@@ -29,10 +33,17 @@ class MovieResponse(BaseModel):
     title: Optional[str] = None
     director: Optional[str] = None
 
+
+
 class MovieListItem(BaseModel):
     id: int
     title: str
     description: str
+    genre: Optional[List[str]] = []
+    poster_url: Optional[str] = None
+    imdb_rating: Optional[float] = None   
+    type: Optional[str] = None   
+
 
 class MovieListResponse(BaseModel):
     movies: List[MovieListItem]
@@ -48,3 +59,6 @@ class MovieUpdate(BaseModel):
     genre: Optional[List[str]] = None
     casts: Optional[List[str]] = None
     released_date: Optional[date] = None
+    poster_url: Optional[str] = None
+
+

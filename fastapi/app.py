@@ -4,6 +4,8 @@ from fastapi import APIRouter
 from routes.movies import movieRouter
 from routes.users import userRouter
 from database import connect_db, disconnect_db, init_db
+from typing import Optional
+from routes.recently_watched import recentlyWatchedRouter
 
 # Create FastAPI app
 app = FastAPI()
@@ -18,13 +20,14 @@ app.add_middleware(
 
 # --- Routers ---
 appRouter = APIRouter()
+app.include_router(recentlyWatchedRouter)
 
 @appRouter.get("/")
 def read_root():
     return {"message": "Hello from FastAPI with Router + CORS!"}
 
 @appRouter.get("/items/{item_id}")
-def read_item(item_id: int, q: str | None = None):
+def read_item(item_id: int, q: Optional[str] = None):
     return {"item_id": item_id, "query": q}
 
 @appRouter.post("/echo")
