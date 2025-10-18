@@ -118,3 +118,8 @@ async def delete_user(user_id: int) -> Optional[dict[str, Any]]:
 async def truncate_users_table() -> None:
     query = "TRUNCATE TABLE users RESTART IDENTITY CASCADE"
     await database.execute(query=query)
+
+async def get_user_by_email(email: str) -> Optional[dict[str, Any]]:
+    query = "SELECT id, username, email, password FROM users WHERE email = :email"
+    result = await database.fetch_one(query=query, values={"email": email})
+    return dict(result) if result else None

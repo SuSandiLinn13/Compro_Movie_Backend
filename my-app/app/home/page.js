@@ -1,106 +1,3 @@
-// "use client";
-
-// import { useEffect, useState } from "react";
-// import Link from "next/link";
-// import { useRouter } from "next/navigation";
-// import styles from "../page.module.css";
-
-// export default function HomePage() {
-//   const router = useRouter();
-//   const [movies, setMovies] = useState([]);
-//   const [recentlyWatched, setRecentlyWatched] = useState([]);
-
-//   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-//   // Redirect to login if not logged in
-//   useEffect(() => {
-//     if (!token) router.push("/login");
-//   }, [token, router]);
-
-//   // Fetch movies
-//   useEffect(() => {
-//     async function fetchMovies() {
-//       const res = await fetch("http://localhost:8008/movies");
-//       const data = await res.json();
-//       if (Array.isArray(data.movies)) setMovies(data.movies);
-//     }
-//     fetchMovies();
-//   }, []);
-
-//   // Fetch recently watched
-//   useEffect(() => {
-//   async function fetchRecentlyWatched() {
-//     if (!token) return;
-//     const res = await fetch("http://localhost:8008/recentlywatched", {
-//       headers: { Authorization: `Bearer ${token}` },
-//     });
-//     const data = await res.json();
-//     // Ensure data is an array
-//     if (Array.isArray(data)) setRecentlyWatched(data);
-//     else if (Array.isArray(data.recentlyWatched)) setRecentlyWatched(data.recentlyWatched);
-//     else setRecentlyWatched([]); // fallback
-//   }
-//   fetchRecentlyWatched();
-// }, [token]);
-
-//   const handleWatchNow = async (movie) => {
-//   if (!token) {
-//     router.push("/login");
-//     return;
-//   }
-
-//   await fetch("http://localhost:8008/recentlywatched", {
-//     method: "POST",
-//     headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-//     body: JSON.stringify({ movie_id: movie.id }),
-//   });
-
-//   setRecentlyWatched((prev = []) => {
-//     const updated = [...prev.filter((m) => m.id !== movie.id), movie];
-//     return updated.slice(-10); // keep last 10
-//   });
-// };
-
-
-//   return (
-//     <main className={styles.fullContainer}>
-//       {/* Recently Watched */}
-//       {recentlyWatched.length > 0 && (
-//         <section className={styles.genreSection}>
-//           <h2>Recently Watched</h2>
-//           <div className={styles.moviesGrid}>
-//             {recentlyWatched.map((movie) => (
-//               <div key={movie.id} className={styles.movieCard}>
-//                 <Link href={`/movies/${movie.id}`}>
-//                   <img src={movie.poster_url} alt={movie.title} />
-//                   <p>{movie.title}</p>
-//                 </Link>
-//               </div>
-//             ))}
-//           </div>
-//         </section>
-//       )}
-
-//       {/* All Movies / Trending */}
-//       <section className={styles.genreSection}>
-//         <h2>Trending Movies & Series</h2>
-//         <div className={styles.moviesGrid}>
-//           {movies.map((movie) => (
-//             <div key={movie.id} className={styles.movieCard}>
-//               <Link href={`/movies/${movie.id}`}>
-//                 <img src={movie.poster_url} alt={movie.title} />
-//                 <p>{movie.title}</p>
-//               </Link>
-//               <button onClick={() => handleWatchNow(movie)}>Watch Now</button>
-//             </div>
-//           ))}
-//         </div>
-//       </section>
-//     </main>
-//   );
-// }
-
-
 "use client";
 
 import { useEffect, useState } from "react";
@@ -112,7 +9,7 @@ import { Button } from "@mui/material";
 export default function HomePage() {
   const router = useRouter();
   const [movies, setMovies] = useState([]);
-  const [recentlyWatched, setRecentlyWatched] = useState([]);
+  const [favorites, setFavorites] = useState([]);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -135,47 +32,38 @@ export default function HomePage() {
     fetchMovies();
   }, []);
 
-  // Load recently watched from localStorage or backend
+  // Fetch user favorites
   useEffect(() => {
-    async function fetchRecentlyWatched() {
+    async function fetchFavorites() {
       if (!token) return;
 
-      const stored = localStorage.getItem("recentlyWatched");
-      if (stored) {
-        setRecentlyWatched(JSON.parse(stored));
-        return;
-      }
-
       try {
-        const res = await fetch("http://localhost:8008/recentlywatched", {
+        const res = await fetch("http://localhost:8008/favorites", {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-
-        let recent = [];
-        if (Array.isArray(data)) recent = data;
-        else if (Array.isArray(data.recentlyWatched)) recent = data.recentlyWatched;
-
-        recent = recent.slice(-10);
-        setRecentlyWatched(recent);
-        localStorage.setItem("recentlyWatched", JSON.stringify(recent));
+        
+        if (Array.isArray(data.favorites)) {
+          setFavorites(data.favorites);
+          localStorage.setItem("favorites", JSON.stringify(data.favorites));
+        }
       } catch (err) {
         console.error(err);
       }
     }
 
-    fetchRecentlyWatched();
+    fetchFavorites();
   }, [token]);
 
-  // Handle watch now
-  const handleWatchNow = async (movie) => {
+  // Handle add to favorites
+  const handleAddToFavorites = async (movie) => {
     if (!token) {
       router.push("/login");
       return;
     }
 
     try {
-      await fetch("http://localhost:8008/recentlywatched", {
+      const response = await fetch("http://localhost:8008/favorites", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -184,15 +72,52 @@ export default function HomePage() {
         body: JSON.stringify({ movie_id: movie.id }),
       });
 
-      setRecentlyWatched((prev = []) => {
-        const updated = [...prev.filter((m) => m.id !== movie.id), movie];
-        const last10 = updated.slice(-10);
-        localStorage.setItem("recentlyWatched", JSON.stringify(last10));
-        return last10;
-      });
+      if (response.ok) {
+        // Update local state
+        setFavorites(prev => {
+          const updated = [...prev, movie];
+          const last10 = updated.slice(-10);
+          localStorage.setItem("favorites", JSON.stringify(last10));
+          return last10;
+        });
+        alert("Added to favorites!");
+      } else {
+        const error = await response.json();
+        alert(error.detail || "Failed to add to favorites");
+      }
     } catch (err) {
       console.error(err);
     }
+  };
+
+  // Handle remove from favorites
+  const handleRemoveFromFavorites = async (movieId) => {
+    if (!token) return;
+
+    try {
+      const response = await fetch(`http://localhost:8008/favorites/${movieId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        setFavorites(prev => {
+          const updated = prev.filter(movie => movie.id !== movieId);
+          localStorage.setItem("favorites", JSON.stringify(updated));
+          return updated;
+        });
+        alert("Removed from favorites!");
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Check if movie is in favorites
+  const isInFavorites = (movieId) => {
+    return favorites.some(fav => fav.id === movieId);
   };
 
   // Logout
@@ -205,7 +130,7 @@ export default function HomePage() {
         });
         localStorage.removeItem("token");
         localStorage.removeItem("username");
-        localStorage.removeItem("recentlyWatched");
+        localStorage.removeItem("favorites");
       }
       router.push("/");
     } catch (err) {
@@ -215,10 +140,10 @@ export default function HomePage() {
 
   return (
     <main className={styles.fullContainer}>
-      {/* Recently Watched */}
-      {recentlyWatched.length > 0 && (
+      {/* Favorites Section */}
+      {favorites.length > 0 && (
         <section className={styles.genreSection}>
-          <h2>10 Favourites</h2>
+          <h2 style={{ color: "#fff", marginBottom: "20px" }}>My Favorites ({favorites.length}/10)</h2>
           <div
             style={{
               display: "flex",
@@ -228,20 +153,54 @@ export default function HomePage() {
               scrollbarWidth: "thin",
             }}
           >
-            {recentlyWatched.map((movie) => (
+            {favorites.map((movie) => (
               <div
                 key={movie.id}
                 className={styles.movieCard}
-                style={{ minWidth: "160px", flexShrink: 0 }}
+                style={{ 
+                  minWidth: "160px", 
+                  flexShrink: 0,
+                  background: "#1a1a1a",
+                  borderRadius: "8px",
+                  padding: "8px",
+                  textAlign: "center"
+                }}
               >
                 <Link href={`/movies/${movie.id}`}>
                   <img
                     src={movie.poster_url}
                     alt={movie.title}
-                    style={{ width: "160px", borderRadius: "8px" }}
+                    style={{ 
+                      width: "160px", 
+                      height: "240px",
+                      borderRadius: "8px",
+                      objectFit: "cover" 
+                    }}
                   />
-                  <p style={{ color: "#fff", textAlign: "center" }}>{movie.title}</p>
+                  <p style={{ 
+                    color: "#fff", 
+                    textAlign: "center",
+                    margin: "8px 0",
+                    fontSize: "14px"
+                  }}>
+                    {movie.title}
+                  </p>
                 </Link>
+                <button 
+                  onClick={() => handleRemoveFromFavorites(movie.id)}
+                  style={{ 
+                    backgroundColor: "#ff4444",
+                    color: "white",
+                    border: "none",
+                    padding: "8px 12px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    width: "100%",
+                    fontSize: "12px"
+                  }}
+                >
+                  Remove from Favorites
+                </button>
               </div>
             ))}
           </div>
@@ -250,15 +209,70 @@ export default function HomePage() {
 
       {/* All Movies / Trending */}
       <section className={styles.genreSection}>
-        <h2>Trending Movies & Series</h2>
+        <h2 style={{ color: "#fff", marginBottom: "20px" }}>Trending Movies & Series</h2>
         <div className={styles.moviesGrid}>
           {movies.map((movie) => (
-            <div key={movie.id} className={styles.movieCard}>
+            <div key={movie.id} className={styles.movieCard} style={{
+              background: "#1a1a1a",
+              borderRadius: "8px",
+              padding: "12px",
+              textAlign: "center"
+            }}>
               <Link href={`/movies/${movie.id}`}>
-                <img src={movie.poster_url} alt={movie.title} />
-                <p>{movie.title}</p>
+                <img 
+                  src={movie.poster_url} 
+                  alt={movie.title} 
+                  style={{
+                    width: "100%",
+                    height: "300px",
+                    borderRadius: "8px",
+                    objectFit: "cover"
+                  }}
+                />
+                <p style={{ 
+                  color: "#fff", 
+                  margin: "12px 0",
+                  fontSize: "16px",
+                  fontWeight: "bold"
+                }}>
+                  {movie.title}
+                </p>
               </Link>
-              <button onClick={() => handleWatchNow(movie)}>Add to Favourites</button>
+              {isInFavorites(movie.id) ? (
+                <button 
+                  onClick={() => handleRemoveFromFavorites(movie.id)}
+                  style={{ 
+                    backgroundColor: "#ff4444",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    width: "100%",
+                    fontSize: "14px",
+                    marginTop: "8px"
+                  }}
+                >
+                  ❤️ Remove from Favorites
+                </button>
+              ) : (
+                <button 
+                  onClick={() => handleAddToFavorites(movie)}
+                  style={{ 
+                    backgroundColor: "#4CAF50",
+                    color: "white",
+                    border: "none",
+                    padding: "10px 16px",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    width: "100%",
+                    fontSize: "14px",
+                    marginTop: "8px"
+                  }}
+                >
+                  🤍 Add to Favorites
+                </button>
+              )}
             </div>
           ))}
         </div>
@@ -273,10 +287,9 @@ export default function HomePage() {
           style={{ marginTop: "12px", maxWidth: "120px" }}
           onClick={handleSignOut}
         >
-        Log Out
+          Log Out
         </Button>
       </div>
-
     </main>
   );
 }

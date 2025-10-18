@@ -89,3 +89,38 @@ async def delete_user_by_id(
 #             detail="Failed to delete user or user not found"
 #         )
 #     return UserOut(**deleted_user)
+
+
+
+
+-- Create the "movies" table
+CREATE TABLE movies (
+    movie_id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    director VARCHAR(255),
+    genre TEXT,
+    cast TEXT,
+    release_date DATE,
+    is_available BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    poster_url TEXT,
+    imdb_rating DECIMAL(3,1),
+    type VARCHAR(20)
+);
+
+-- Insert movie and series data
+INSERT INTO movies (movie_id, title, description, director, genre, cast, release_date, is_available, created_at, poster_url, imdb_rating, type) VALUES
+(1, 'Inception', 'A mind-bending thriller about a professional thief who invades dreams to steal secrets. When offered a chance to have his criminal record erased, he must plant an idea in someone’s subconscious. The deeper he dives into dreams, the blurrier the line between reality and illusion becomes.', 'Christopher Nolan', '{Action,Sci-Fi,Thriller}', '{"Leonardo DiCaprio","Joseph Gordon-Levitt","Elliot Page"}', '2010-07-16', TRUE, '2025-10-12 21:33:52.962', 'https://i.ebayimg.com/images/g/ecQAAOSwAG9ku3TI/s-l1200.png', 8.8, 'movie'),
+
+(2, 'Interstellar', 'A breathtaking journey through space and time. As Earth faces ecological collapse, a group of astronauts travels through a wormhole to find a new home for humanity. The film explores love, sacrifice, and the unbreakable bond between a father and daughter.', 'Christopher Nolan', '{Adventure,Drama,Sci-Fi}', '{"Matthew McConaughey","Anne Hathaway","Jessica Chastain"}', '2014-11-07', TRUE, '2025-10-12 21:34:33.069', 'https://i.pinimg.com/736x/e4/bb/76/e4bb7637935f94a99746ada39277a54a.jpg', 8.6, 'movie'),
+
+(3, 'Parasite', 'A darkly comedic yet tragic tale of class divide. A poor family schemes their way into the lives of a wealthy household, but as deceit grows, so does the tension that leads to shocking consequences. The film masterfully balances humor, horror, and social commentary.', 'Bong Joon-ho', '{Thriller,Drama}', '{"Song Kang-ho","Lee Sun-kyun","Cho Yeo-jeong"}', '2019-05-30', TRUE, '2025-10-12 21:34:33.069', 'https://www.ubuy.co.th/productimg/?image=aHR0cHM6Ly9tLm1lZGlhLWFtYXpvbi5jb20vaW1hZ2VzL0kvOTFLQXJZUDAzWUwuX0FDX1NMMTUwMF8uanBn.jpg', 8.6, 'movie'),
+
+(4, 'Mad Max: Fury Road', 'Set in a desolate wasteland ruled by tyranny, Max joins forces with Furiosa to free enslaved women and escape a brutal warlord. Filled with stunning visuals, high-octane chases, and relentless energy, this film redefines action cinema.', 'George Miller', '{Action,Adventure,Sci-Fi}', '{"Tom Hardy","Charlize Theron","Nicholas Hoult"}', '2015-05-15', TRUE, '2025-10-12 22:04:01.772', 'https://image.tmdb.org/t/p/w500/8tZYtuWezp8JbcsvHYO0O46tFbo.jpg', 8.1, 'movie'),
+
+(5, 'John Wick', 'After losing everything, including his beloved dog—a final gift from his late wife—former assassin John Wick returns to the underworld to exact vengeance. His quest for retribution becomes a brutal ballet of bullets and honor.', 'Chad Stahelski', '{Action,Thriller}', '{"Keanu Reeves","Ian McShane","Halle Berry"}', '2014-10-24', TRUE, '2025-10-12 22:04:01.772', 'https://image.tmdb.org/t/p/w500/ziEuG1essDuWuC5lpWUaw1uXY2O.jpg', 7.4, 'movie'),
+
+(6, 'The Notebook', 'A heartwarming romance set in the 1940s, following Noah and Allie, two young lovers separated by class and circumstance. Their enduring bond defies time, reminding us that true love never fades.', 'Nick Cassavetes', '{Romance,Drama}', '{"Ryan Gosling","Rachel McAdams","Gena Rowlands"}', '2004-06-25', TRUE, '2025-10-12 22:07:18.310', 'https://i.ebayimg.com/images/g/proAAOxy-1lRIBE9/s-l1200.jpg', 7.8, 'movie'),
+
+(7, 'Pride & Prejudice', 'A witty and elegant tale of love, pride, and societal expectations. Elizabeth Bennet and Mr. Darcy clash in both intellect and emotion, slowly discovering that first impressions can be deceiving.', 'Joe Wright', '{Romance,Drama}', '{"Keira Knightley","Matthew Macfadyen","Rosamund Pike"}', '2005-11-11', TRUE, '2025-10-12 22:07:18.310', 'https://m.media-amazon.com/images/I/616z+uCD2IL.jpg', 7.8, 'movie'),
