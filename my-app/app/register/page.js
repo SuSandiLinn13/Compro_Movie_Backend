@@ -1,93 +1,195 @@
+// "use client";
+
+// import React, { useState } from "react";
+// import { TextField, Button, Grid, Typography, Paper, Snackbar, Alert, IconButton, InputAdornment } from "@mui/material";
+// import { Visibility, VisibilityOff } from "@mui/icons-material";
+
+// export default function Register() {
+//   const [registerName, setRegisterName] = useState('');
+//   const [registerEmail, setRegisterEmail] = useState('');
+//   const [registerPassword, setRegisterPassword] = useState('');
+//   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+//   const [showPassword, setShowPassword] = useState(false);
+//   const [openSnackbar, setOpenSnackbar] = useState(false);
+//   const [snackbarMessage, setSnackbarMessage] = useState('');
+//   const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+
+//   const handleSnackbarClose = () => setOpenSnackbar(false);
+//   const handleClickShowPassword = () => setShowPassword(!showPassword);
+//   const handleMouseDownPassword = (event) => event.preventDefault();
+
+//   const handleRegisterSubmit = async (e) => {
+//     e.preventDefault();
+
+//     if (registerPassword !== registerConfirmPassword) {
+//       setSnackbarMessage('Passwords do not match');
+//       setSnackbarSeverity('error');
+//       setOpenSnackbar(true);
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch('http://localhost:8008/register', {
+//         method: 'POST',
+//         headers: { 'Content-Type': 'application/json' },
+//         body: JSON.stringify({
+//           username: registerName,
+//           email: registerEmail,
+//           password: registerPassword,
+//         }),
+//       });
+
+//       if (!response.ok) {
+//         const errorData = await response.json();
+//         throw new Error(errorData.detail || 'Registration failed');
+//       }
+
+//       setSnackbarMessage('Registration successful!');
+//       setSnackbarSeverity('success');
+//       setOpenSnackbar(true);
+
+//       // Clear form after success
+//       setRegisterName('');
+//       setRegisterEmail('');
+//       setRegisterPassword('');
+//       setRegisterConfirmPassword('');
+//     } catch (error) {
+//       setSnackbarMessage(error.message);
+//       setSnackbarSeverity('error');
+//       setOpenSnackbar(true);
+//     }
+//   };
+
+//   return (
+//     <Grid container spacing={2} style={{ height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E1E1E' }}>
+//       <Grid item xs={12} sm={4} md={3}>
+//         <Paper elevation={3} style={{
+//           padding: '20px',
+//           backgroundColor: 'rgba(103, 80, 164, 0.16)',
+//           color: '#fff',
+//           maxWidth: '400px',
+//           width: '100%',
+//           borderRadius: '12px',
+//           border: '0.2px solid #FFFFFF',
+//         }}>
+//           <form onSubmit={handleRegisterSubmit}>
+//             <Typography variant="subtitle1" gutterBottom>Username</Typography>
+//             <TextField
+//               fullWidth
+//               variant="outlined"
+//               margin="dense"
+//               size="small"
+//               type="text"
+//               value={registerName}
+//               onChange={(e) => setRegisterName(e.target.value)}
+//               sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+//             />
+
+//             <Typography variant="subtitle1" gutterBottom>Email</Typography>
+//             <TextField
+//               fullWidth
+//               variant="outlined"
+//               margin="dense"
+//               size="small"
+//               type="email"
+//               value={registerEmail}
+//               onChange={(e) => setRegisterEmail(e.target.value)}
+//               sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+//             />
+
+//             <Typography variant="subtitle1" gutterBottom>Password</Typography>
+//             <TextField
+//               fullWidth
+//               variant="outlined"
+//               margin="dense"
+//               size="small"
+//               type={showPassword ? "text" : "password"}
+//               value={registerPassword}
+//               onChange={(e) => setRegisterPassword(e.target.value)}
+//               sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+//               InputProps={{
+//                 endAdornment: (
+//                   <InputAdornment position="end">
+//                     <IconButton
+//                       onClick={handleClickShowPassword}
+//                       onMouseDown={handleMouseDownPassword}
+//                       edge="end"
+//                     >
+//                       {showPassword ? <VisibilityOff /> : <Visibility />}
+//                     </IconButton>
+//                   </InputAdornment>
+//                 ),
+//               }}
+//             />
+
+//             <Typography variant="subtitle1" gutterBottom>Confirm Password</Typography>
+//             <TextField
+//               fullWidth
+//               variant="outlined"
+//               margin="dense"
+//               size="small"
+//               type="password"
+//               value={registerConfirmPassword}
+//               onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+//               sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+//             />
+
+//             <Button variant="contained" color="primary" fullWidth style={{ marginTop: '12px' }} type="submit">
+//               Register
+//             </Button>
+//           </form>
+//         </Paper>
+//       </Grid>
+
+//       <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+//         <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+//           {snackbarMessage}
+//         </Alert>
+//       </Snackbar>
+//     </Grid>
+//   );
+// }
 "use client";
 
 import React, { useState } from "react";
-import { useRouter } from "next/navigation";
-import { TextField, Button, Grid, Paper, Snackbar, Alert, Typography } from '@mui/material';
+import { TextField, Button, Grid, Typography, Paper, Snackbar, Alert, IconButton, InputAdornment } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useRouter } from "next/navigation"; // Import useRouter
 
 export default function Register() {
-  const router = useRouter();
+  const [registerName, setRegisterName] = useState('');
+  const [registerEmail, setRegisterEmail] = useState('');
+  const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+  
+  const router = useRouter(); // Initialize router
 
-  // Form state
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-    email: "",
-  });
+  const handleSnackbarClose = () => setOpenSnackbar(false);
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
+  const handleMouseDownPassword = (event) => event.preventDefault();
 
-  // Error states
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const [usernameError, setUsernameError] = useState(false);
-  const [usernameErrorMessage, setUsernameErrorMessage] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
-
-  // Form validation
-  const validateInputs = () => {
-    let isValid = true;
-
-    // Username validation
-    if (!form.username) {
-      setUsernameError(true);
-      setUsernameErrorMessage("Please enter your username.");
-      isValid = false;
-    } else {
-      setUsernameError(false);
-      setUsernameErrorMessage("");
-    }
-
-    // Password validation
-    if (!form.password || form.password.length < 4) {
-      setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 4 characters.");
-      isValid = false;
-    } else {
-      setPasswordError(false);
-      setPasswordErrorMessage("");
-    }
-
-    // Email validation
-    if (!form.email || !/\S+@\S+\.\S+/.test(form.email)) {
-      setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
-      isValid = false;
-    } else {
-      setEmailError(false);
-      setEmailErrorMessage("");
-    }
-
-    return isValid;
-  };
-
-  const handleInputChange = (field) => (e) => {
-    setForm(prev => ({
-      ...prev,
-      [field]: e.target.value
-    }));
-  };
-
-  // Form submit handler
-  const handleSubmit = async (e) => {
+  const handleRegisterSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
 
-    // Validate the form inputs
-    if (!validateInputs()) return;
+    if (registerPassword !== registerConfirmPassword) {
+      setSnackbarMessage('Passwords do not match');
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
+      return;
+    }
 
     try {
-      // Make API request for registration
-      const response = await fetch('/api/users/register', {
+      const response = await fetch('http://localhost:8008/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          username: form.username,
-          password: form.password,
-          email: form.email,
+          username: registerName,
+          email: registerEmail,
+          password: registerPassword,
         }),
       });
 
@@ -96,183 +198,131 @@ export default function Register() {
         throw new Error(errorData.detail || 'Registration failed');
       }
 
-      const data = await response.json();
-      setSuccess("Registration successful! Redirecting to sign in...");
+      setSnackbarMessage('Registration successful! Redirecting to login...');
+      setSnackbarSeverity('success');
+      setOpenSnackbar(true);
+
+      // Clear form after success
+      setRegisterName('');
+      setRegisterEmail('');
+      setRegisterPassword('');
+      setRegisterConfirmPassword('');
+
+      // Redirect to login page after a short delay
       setTimeout(() => {
-        router.push("/signin");
-      }, 1000);
-    } catch (err) {
-      if (err.message) {
-        setError(err.message);
-      } else {
-        setError("An unexpected error occurred. Please try again.");
-      }
+        router.push('/login'); // Change this to your actual login route
+      }, 2000); // 2 second delay to show success message
+
+    } catch (error) {
+      setSnackbarMessage(error.message);
+      setSnackbarSeverity('error');
+      setOpenSnackbar(true);
     }
   };
 
-  const handleSnackbarClose = () => {
-    setError("");
-    setSuccess("");
-  };
-
   return (
-    <Grid 
-      container 
-      style={{ 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        width: '100%',
-        margin: 0,
-        padding: '0px' // Reduced padding
-      }}
-    >
-      <Grid item xs={12} sm={8} md={6} lg={4}>
-        <Paper 
-          elevation={3} 
-          style={{ 
-            padding: '20px', 
-            backgroundColor: 'rgba(103, 80, 164, 0.16)', 
-            color: '#fff', 
-            width: '100%',
-            borderRadius: '12px',
-            border: '0.2px solid #FFFFFF',
-            boxSizing: 'border-box',
-            margin: '10px 0' // Reduced margin
-          }}
-        >
+    <Grid container spacing={2} style={{ height: '100vh', justifyContent: 'center', alignItems: 'center', backgroundColor: '#1E1E1E' }}>
+      <Grid item xs={12} sm={4} md={3}>
+        <Paper elevation={3} style={{
+          padding: '20px',
+          backgroundColor: 'rgba(103, 80, 164, 0.16)',
+          color: '#fff',
+          maxWidth: '400px',
+          width: '100%',
+          borderRadius: '12px',
+          border: '0.2px solid #FFFFFF',
+        }}>
           <Typography variant="h5" gutterBottom align="center" style={{ marginBottom: '15px' }}>
             Create Account
           </Typography>
           
-          <form onSubmit={handleSubmit}>
-            {/* Username Field */}
-            <Typography variant="subtitle1" gutterBottom style={{ marginBottom: '5px' }}>
-              Username          
-            </Typography>
+          <form onSubmit={handleRegisterSubmit}>
+            <Typography variant="subtitle1" gutterBottom>Username</Typography>
             <TextField
               fullWidth
               variant="outlined"
               margin="dense"
               size="small"
               type="text"
-              value={form.username}
-              onChange={handleInputChange('username')}
-              error={usernameError}
-              helperText={usernameErrorMessage}
-              sx={{ 
-                backgroundColor: '#fff', 
-                borderRadius: 1, 
-                '& .MuiInputBase-input': {
-                  color: '#1E1E1E',
-                },
-                '& .MuiFormHelperText-root': {
-                  color: '#ff6b6b',
-                  marginLeft: 0
-                }
-              }}
+              value={registerName}
+              onChange={(e) => setRegisterName(e.target.value)}
+              required
+              sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
             />
 
-            {/* Email Field */}
-            <Typography variant="subtitle1" gutterBottom style={{ marginTop: '8px', marginBottom: '5px' }}>
-              Email          
-            </Typography>
+            <Typography variant="subtitle1" gutterBottom>Email</Typography>
             <TextField
               fullWidth
               variant="outlined"
               margin="dense"
               size="small"
               type="email"
-              value={form.email}
-              onChange={handleInputChange('email')}
-              error={emailError}
-              helperText={emailErrorMessage}
-              sx={{ 
-                backgroundColor: '#fff', 
-                borderRadius: 1, 
-                '& .MuiInputBase-input': {
-                  color: '#1E1E1E',
-                },
-                '& .MuiFormHelperText-root': {
-                  color: '#ff6b6b',
-                  marginLeft: 0
-                }
+              value={registerEmail}
+              onChange={(e) => setRegisterEmail(e.target.value)}
+              required
+              sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+            />
+
+            <Typography variant="subtitle1" gutterBottom>Password</Typography>
+            <TextField
+              fullWidth
+              variant="outlined"
+              margin="dense"
+              size="small"
+              type={showPassword ? "text" : "password"}
+              value={registerPassword}
+              onChange={(e) => setRegisterPassword(e.target.value)}
+              required
+              sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={handleClickShowPassword}
+                      onMouseDown={handleMouseDownPassword}
+                      edge="end"
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
               }}
             />
 
-            {/* Password Field */}
-            <Typography variant="subtitle1" gutterBottom style={{ marginTop: '8px', marginBottom: '5px' }}>
-              Password          
-            </Typography>
+            <Typography variant="subtitle1" gutterBottom>Confirm Password</Typography>
             <TextField
               fullWidth
               variant="outlined"
               margin="dense"
               size="small"
               type="password"
-              value={form.password}
-              onChange={handleInputChange('password')}
-              error={passwordError}
-              helperText={passwordErrorMessage}
-              sx={{ 
-                backgroundColor: '#fff', 
-                borderRadius: 1, 
-                '& .MuiInputBase-input': {
-                  color: '#1E1E1E',
-                },
-                '& .MuiFormHelperText-root': {
-                  color: '#ff6b6b',
-                  marginLeft: 0
-                }
-              }}
+              value={registerConfirmPassword}
+              onChange={(e) => setRegisterConfirmPassword(e.target.value)}
+              required
+              sx={{ backgroundColor: '#fff', borderRadius: 1, '& .MuiInputBase-input': { color: '#1E1E1E' } }}
             />
 
-            {/* Register Button */}
-            <Button 
-              variant="contained" 
-              color="primary" 
-              fullWidth 
-              style={{ 
-                marginTop: '15px', // Reduced from 20px
-                backgroundColor: '#6750A4',
-                color: '#fff'
-              }} 
-              type="submit"
-            >
+            <Button variant="contained" color="primary" fullWidth style={{ marginTop: '12px' }} type="submit">
               Register
             </Button>
+            
+            {/* Add a link to login page as well */}
+            <Typography align="center" style={{ marginTop: '15px' }}>
+              <Button 
+                variant="text" 
+                sx={{ color: '#fff' }}
+                onClick={() => router.push('/login')}
+              >
+                Already have an account? Sign In
+              </Button>
+            </Typography>
           </form>
-
-          {/* Sign in link */}
-          <Typography variant="body2" align="center" style={{ marginTop: '12px' }}>
-            Already have an account?{' '}
-            <span 
-              style={{ 
-                color: '#6750A4', 
-                cursor: 'pointer', 
-                textDecoration: 'underline',
-                fontWeight: 'bold'
-              }}
-              onClick={() => router.push('/login')}
-            >
-              Sign in
-            </span>
-          </Typography>
         </Paper>
       </Grid>
 
-      {/* Snackbar for notifications */}
-      <Snackbar 
-        open={!!error || !!success} 
-        autoHideDuration={6000} 
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleSnackbarClose} 
-          severity={error ? "error" : "success"} 
-          sx={{ width: '100%' }}
-        >
-          {error || success}
+      <Snackbar open={openSnackbar} autoHideDuration={6000} onClose={handleSnackbarClose}>
+        <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Grid>

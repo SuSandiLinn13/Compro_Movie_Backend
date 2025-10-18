@@ -1,38 +1,44 @@
 // components/NavigationLayout.js
+// "use client";
+
+// import HeadNav from "@/components/HeadNav";
+// import BottomNavigationBar from "@/components/BottomNav";
+
+// const NavigationLayout = ({ children }) => {
+//   return (
+//     <>
+//       {/* ✅ Top navigation bar */}
+//       <HeadNav />
+
+//       {/* ✅ Main content */}
+//       <main style={{ minHeight: "100vh", paddingBottom: "64px" }}>
+//         {children}
+//       </main>
+
+//       {/* ✅ Fixed bottom navigation bar */}
+//       <BottomNavigationBar />
+//     </>
+//   );
+// };
+
+// export default NavigationLayout;
+
+
+
+// components/NavigationLayout.js
 "use client";
 
-import HeadNav from "@/components/HeadNav";
-import BottomNavigationBar from "@/components/BottomNav";
+import HeadNav from "./HeadNav";
+import BottomNav from "./BottomNav";
 
-const NavigationLayout = ({ children }) => {
+export default function NavigationLayout({ children, hideBottomNav = false }) {
   return (
     <>
-      {/* Fixed top navigation bar */}
-      <div style={{ position: "fixed", top: 0, width: "100%", zIndex: 1000 }}>
-        <HeadNav />
-      </div>
-
-      {/* Main content area */}
-      <main
-        style={{
-          minHeight: "100vh",
-          paddingTop: "70px", // space for fixed top nav (adjust if nav height differs)
-          paddingBottom: "70px", // space for bottom nav
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <HeadNav />
+      <main style={{ minHeight: "100vh", paddingBottom: hideBottomNav ? 0 : 64 }}>
         {children}
       </main>
-
-      {/* Fixed bottom navigation bar */}
-      <div style={{ position: "fixed", bottom: 0, width: "100%", zIndex: 1000 }}>
-        <BottomNavigationBar />
-      </div>
+      {!hideBottomNav && <BottomNav />}
     </>
   );
-};
-
-export default NavigationLayout;
+}

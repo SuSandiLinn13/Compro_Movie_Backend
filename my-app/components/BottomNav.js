@@ -13,52 +13,18 @@ const BottomNavigationBar = () => {
         top: "auto",
         bottom: 0,
         backgroundColor: '#6750A4',
-        padding: "8px 24px",
+        padding: "6px 24px",
       }}
     >
       <Toolbar sx={{ display: "flex", justifyContent: "space-between" }}>
         {/* Left side */}
         <Box sx={{ display: "flex", alignItems: "center", gap: 4 }}>
-          <Typography
-            variant="h6"
-            sx={{ fontSize: "20px", fontWeight: 500, color: '#FFFFFF' }}
-          >
-            You Were Here
-          </Typography>
 
-          <Link href="/contact" passHref>
-            <MuiLink
-              component="span"
-              underline="none"
-              sx={{
-                color: '#FFFFFF',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'color 0.2s',
-                '&:hover': { color: '#1E1E1E' }
-              }}
-            >
-              Contact Us
-            </MuiLink>
-          </Link>
+          <Typography variant="body2" sx={{ color: '#FFFFFF' }}>
+            Always here with you now and forever
+          </Typography> 
 
-          <Link href="/help" passHref>
-            <MuiLink
-              component="span"
-              underline="none"
-              sx={{
-                color: '#FFFFFF',
-                fontSize: '14px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'color 0.2s',
-                '&:hover': { color: '#1E1E1E' }
-              }}
-            >
-              Help
-            </MuiLink>
-          </Link>
+          
         </Box>
 
         {/* Right side (icons) */}

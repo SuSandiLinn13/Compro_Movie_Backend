@@ -8,11 +8,15 @@ class UserCreate(BaseModel):
     password: str = Field(..., example="strong_password123")
 
 
+# class UserLogin(BaseModel):
+#     username: str = Field(..., example="john_doe")
+#     password: str = Field(..., example="strong_password123")
+#     remember_me: Optional[bool] = Field(False, example=True)
+
 class UserLogin(BaseModel):
-    username: str = Field(..., example="john_doe")
+    email: EmailStr = Field(..., example="user@example.com")
     password: str = Field(..., example="strong_password123")
     remember_me: Optional[bool] = Field(False, example=True)
-
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
