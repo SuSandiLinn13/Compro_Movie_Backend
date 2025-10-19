@@ -78,7 +78,7 @@ export default function LoginPage() {
           <form onSubmit={handleLoginSubmit}>
             {/* Username Field */}
             <Typography variant="subtitle1" gutterBottom style={{ marginBottom: '5px' }}>
-              Username
+              Email
             </Typography>
             <TextField
               fullWidth

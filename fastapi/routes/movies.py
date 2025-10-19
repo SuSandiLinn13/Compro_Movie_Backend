@@ -225,10 +225,10 @@ async def show_movies_by_genre(genre_name: str):
 async def movies_only():
     return await get_movies_only()
 
-@movieRouter.get("/seriesonly")
-@handle_route_errors("Fetching series only")
-async def series_only():
-    return await get_series_only()
+# @movieRouter.get("/seriesonly")
+# @handle_route_errors("Fetching series only")
+# async def series_only():
+#     return await get_series_only()
 
 @movieRouter.get("/imdb")
 @handle_route_errors("Fetching top IMDB")

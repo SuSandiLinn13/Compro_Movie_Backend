@@ -112,8 +112,8 @@ const HeadNavigationBar = () => {
   ];
 
   return (
-    <AppBar position="fixed" sx={{ backgroundColor: '#6750A4', padding: '0 24px' , fontFamily: 'Georgia, Helvetica, sans-serif' }}>
-      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+    <AppBar position="fixed" sx={{ backgroundColor: '#6750A4', padding: '0 24px' }}>
+      <Toolbar sx={{ display: 'flex', justifyContent: 'space-between'}}>
         
         {/* Left side */}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>

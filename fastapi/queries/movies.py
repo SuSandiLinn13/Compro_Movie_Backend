@@ -115,9 +115,9 @@ async def get_movies_only():
     query = "SELECT * FROM movies WHERE type = 'movie'"
     return await database.fetch_all(query)
 
-async def get_series_only():
-    query = "SELECT * FROM movies WHERE type = 'series'"
-    return await database.fetch_all(query)
+# async def get_series_only():
+#     query = "SELECT * FROM movies WHERE type = 'series'"
+#     return await database.fetch_all(query)
 
 async def get_top_imdb():
     query = "SELECT * FROM movies ORDER BY imdb_rating DESC"

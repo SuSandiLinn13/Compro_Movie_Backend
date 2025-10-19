@@ -4,12 +4,13 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import styles from "../page.module.css";
-import { Button } from "@mui/material";
+import { Button, Snackbar, Alert } from "@mui/material";
 
 export default function HomePage() {
   const router = useRouter();
   const [movies, setMovies] = useState([]);
   const [favorites, setFavorites] = useState([]);
+  const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -42,7 +43,7 @@ export default function HomePage() {
           headers: { Authorization: `Bearer ${token}` },
         });
         const data = await res.json();
-        
+
         if (Array.isArray(data.favorites)) {
           setFavorites(data.favorites);
           localStorage.setItem("favorites", JSON.stringify(data.favorites));
@@ -54,6 +55,15 @@ export default function HomePage() {
 
     fetchFavorites();
   }, [token]);
+
+  // Show snackbar helper
+  const showSnackbar = (message, severity = "success") => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
 
   // Handle add to favorites
   const handleAddToFavorites = async (movie) => {
@@ -73,20 +83,20 @@ export default function HomePage() {
       });
 
       if (response.ok) {
-        // Update local state
-        setFavorites(prev => {
+        setFavorites((prev) => {
           const updated = [...prev, movie];
           const last10 = updated.slice(-10);
           localStorage.setItem("favorites", JSON.stringify(last10));
           return last10;
         });
-        alert("Added to favorites!");
+        showSnackbar("Added to favorites!", "success");
       } else {
         const error = await response.json();
-        alert(error.detail || "Failed to add to favorites");
+        showSnackbar(error.detail || "Failed to add to favorites", "error");
       }
     } catch (err) {
       console.error(err);
+      showSnackbar("Error adding to favorites", "error");
     }
   };
 
@@ -97,27 +107,28 @@ export default function HomePage() {
     try {
       const response = await fetch(`http://localhost:8008/favorites/${movieId}`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (response.ok) {
-        setFavorites(prev => {
-          const updated = prev.filter(movie => movie.id !== movieId);
+        setFavorites((prev) => {
+          const updated = prev.filter((movie) => movie.id !== movieId);
           localStorage.setItem("favorites", JSON.stringify(updated));
           return updated;
         });
-        alert("Removed from favorites!");
+        showSnackbar("Removed from favorites!", "info");
+      } else {
+        showSnackbar("Failed to remove from favorites", "error");
       }
     } catch (err) {
       console.error(err);
+      showSnackbar("Error removing from favorites", "error");
     }
   };
 
   // Check if movie is in favorites
   const isInFavorites = (movieId) => {
-    return favorites.some(fav => fav.id === movieId);
+    return favorites.some((fav) => fav.id === movieId);
   };
 
   // Logout
@@ -140,10 +151,24 @@ export default function HomePage() {
 
   return (
     <main className={styles.fullContainer}>
+      {/* ✅ Snackbar for inline notifications */}
+      <Snackbar
+        open={snackbar.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: "100%" }}>
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
+
       {/* Favorites Section */}
       {favorites.length > 0 && (
         <section className={styles.genreSection}>
-          <h2 style={{ color: "#fff", marginBottom: "20px" }}>My Favorites ({favorites.length}/10)</h2>
+          <h2 style={{ color: "#fff", marginBottom: "20px" }}>
+            My Favorites ({favorites.length}/10)
+          </h2>
           <div
             style={{
               display: "flex",
@@ -154,41 +179,32 @@ export default function HomePage() {
             }}
           >
             {favorites.map((movie) => (
-              <div
-                key={movie.id}
-                className={styles.movieCard}
-                style={{ 
-                  minWidth: "160px", 
-                  flexShrink: 0,
-                  background: "#1a1a1a",
-                  borderRadius: "8px",
-                  padding: "8px",
-                  textAlign: "center"
-                }}
-              >
+              <div key={movie.id} className={styles.movieCard}>
                 <Link href={`/movies/${movie.id}`}>
                   <img
                     src={movie.poster_url}
                     alt={movie.title}
-                    style={{ 
-                      width: "160px", 
+                    style={{
+                      width: "160px",
                       height: "240px",
                       borderRadius: "8px",
-                      objectFit: "cover" 
+                      objectFit: "cover",
                     }}
                   />
-                  <p style={{ 
-                    color: "#fff", 
-                    textAlign: "center",
-                    margin: "8px 0",
-                    fontSize: "14px"
-                  }}>
+                  <p
+                    style={{
+                      color: "#fff",
+                      textAlign: "center",
+                      margin: "8px 0",
+                      fontSize: "14px",
+                    }}
+                  >
                     {movie.title}
                   </p>
                 </Link>
-                <button 
+                <button
                   onClick={() => handleRemoveFromFavorites(movie.id)}
-                  style={{ 
+                  style={{
                     backgroundColor: "#ff4444",
                     color: "white",
                     border: "none",
@@ -196,7 +212,7 @@ export default function HomePage() {
                     borderRadius: "4px",
                     cursor: "pointer",
                     width: "100%",
-                    fontSize: "12px"
+                    fontSize: "12px",
                   }}
                 >
                   Remove from Favorites
@@ -212,36 +228,15 @@ export default function HomePage() {
         <h2 style={{ color: "#fff", marginBottom: "20px" }}>Trending Movies & Series</h2>
         <div className={styles.moviesGrid}>
           {movies.map((movie) => (
-            <div key={movie.id} className={styles.movieCard} style={{
-              background: "#1a1a1a",
-              borderRadius: "8px",
-              padding: "12px",
-              textAlign: "center"
-            }}>
+            <div key={movie.id} className={styles.movieCard}>
               <Link href={`/movies/${movie.id}`}>
-                <img 
-                  src={movie.poster_url} 
-                  alt={movie.title} 
-                  style={{
-                    width: "100%",
-                    height: "300px",
-                    borderRadius: "8px",
-                    objectFit: "cover"
-                  }}
-                />
-                <p style={{ 
-                  color: "#fff", 
-                  margin: "12px 0",
-                  fontSize: "16px",
-                  fontWeight: "bold"
-                }}>
-                  {movie.title}
-                </p>
+                <img src={movie.poster_url} alt={movie.title} />
+                <p>{movie.title}</p>
               </Link>
               {isInFavorites(movie.id) ? (
-                <button 
+                <button
                   onClick={() => handleRemoveFromFavorites(movie.id)}
-                  style={{ 
+                  style={{
                     backgroundColor: "#ff4444",
                     color: "white",
                     border: "none",
@@ -250,15 +245,15 @@ export default function HomePage() {
                     cursor: "pointer",
                     width: "100%",
                     fontSize: "14px",
-                    marginTop: "8px"
+                    marginTop: "8px",
                   }}
                 >
                   ❤️ Remove from Favorites
                 </button>
               ) : (
-                <button 
+                <button
                   onClick={() => handleAddToFavorites(movie)}
-                  style={{ 
+                  style={{
                     backgroundColor: "#4CAF50",
                     color: "white",
                     border: "none",
@@ -267,7 +262,7 @@ export default function HomePage() {
                     cursor: "pointer",
                     width: "100%",
                     fontSize: "14px",
-                    marginTop: "8px"
+                    marginTop: "8px",
                   }}
                 >
                   🤍 Add to Favorites

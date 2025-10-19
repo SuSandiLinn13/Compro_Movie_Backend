@@ -5,10 +5,12 @@ from routes.movies import movieRouter
 from routes.users import userRouter
 from routes.favorites import favoriteRouter
 from routes.comments import commentRouter
+from routes.series import seriesRouter
+from routes.comment_series import seriesCommentRouter
 from database import connect_db, disconnect_db, init_db
 from typing import Optional
 # Comment out the problematic import for now
-# from routes.recently_watched import recentlyWatchedRouter
+from routes.recently_watched import recentlyWatchedRouter
 
 # Create FastAPI app
 app = FastAPI()
@@ -23,7 +25,7 @@ app.add_middleware(
 
 # --- Routers ---
 appRouter = APIRouter()
-# app.include_router(recentlyWatchedRouter)  # Comment this out for now
+app.include_router(recentlyWatchedRouter)  # Comment this out for now
 
 @appRouter.get("/")
 def read_root():
@@ -42,6 +44,8 @@ app.include_router(movieRouter)
 app.include_router(userRouter)
 app.include_router(favoriteRouter)
 app.include_router(commentRouter)
+app.include_router(seriesRouter)
+app.include_router(seriesCommentRouter) 
 
 @app.on_event("startup")
 async def startup():

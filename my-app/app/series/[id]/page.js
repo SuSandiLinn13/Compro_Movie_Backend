@@ -1,99 +1,3 @@
-// 'use client';
-
-// import { useParams } from 'next/navigation';
-// import { useState, useEffect } from 'react';
-// import { Box, Typography, Button, CircularProgress, Chip } from '@mui/material';
-
-// export default function MovieProfilePage() {
-//   const { id } = useParams();
-//   const [movie, setMovie] = useState(null);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState(false);
-
-//   useEffect(() => {
-//     if (!id) return; // wait for id
-
-//     async function fetchMovie() {
-//       try {
-//         const movieId = parseInt(id, 10);
-//         if (isNaN(movieId)) throw new Error('Invalid movie ID');
-
-//         const res = await fetch(`http://localhost:8008/movie/${movieId}`);
-//         if (!res.ok) throw new Error('Movie not found');
-
-//         const data = await res.json();
-//         setMovie(data.movie_detail);
-//       } catch (err) {
-//         console.error(err);
-//         setError(true);
-//       } finally {
-//         setLoading(false);
-//       }
-//     }
-
-//     fetchMovie();
-//   }, [id]);
-
-//   if (loading) return <CircularProgress sx={{ mt: 5, ml: 5 }} />;
-//   if (error || !movie) return <Typography sx={{ mt: 5 }} color="error">Movie not found</Typography>;
-
-//   return (
-//     <Box sx={{ maxWidth: "100%", mx: 'auto', mt: 12, px: 3, padding: "6rem 6rem", marginTop: '40px', 
-//        display: 'flex', flexWrap: 'wrap', gap: 4, 
-//       backgroundColor: '#1e1e1e', color: '#fff' }}>
-//       {/* Poster + Watch Now Button */}
-//       <Box sx={{ minWidth: 300, flexShrink: 0 }}>
-//         <Box
-//           component="img"
-//           src={movie.poster_url}
-//           alt={movie.title}
-//           sx={{ width: 300, borderRadius: 2, mb: 2 }}
-//         />
-//         <Button
-//           variant="contained"
-//           color="primary"
-//           sx={{ width: '70%' }}
-//           onClick={() => window.open('https://www.youtube.com/', '_blank')} // replace '#' with youtube link later
-//         >
-//           Watch Now
-//         </Button>
-//       </Box>
-
-//       {/* Movie Details */}
-//       <Box sx={{ flex: 1, minWidth: 300 }}>
-//         <Typography variant="h3" fontWeight="bold" gutterBottom>
-//           {movie.title}
-//         </Typography>
-
-//         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2 }}>
-//           {Array.isArray(movie.genre) && movie.genre.map((g) => (
-//             <Chip key={g} label={g} color="primary" />
-//           ))}
-//         </Box>
-
-//         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-//           <strong>Director:</strong> {movie.director || 'Unknown'}
-//         </Typography>
-
-//         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-//           <strong>Casts:</strong> {Array.isArray(movie.casts) ? movie.casts.join(', ') : movie.casts || 'Unknown'}
-//         </Typography>
-
-//         <Typography variant="subtitle1" sx={{ mb: 1 }}>
-//           <strong>IMDB Rating:</strong> {' '}
-//            {movie.imdb_rating !== null && movie.imdb_rating !== undefined? movie.imdb_rating.toFixed(1): 'Unknown'}
-//       </Typography>
-
-//         <Typography variant="body1" sx={{ mt: 2 }}>
-//           {movie.description || 'No description available.'}
-//         </Typography>
-//       </Box>
-//     </Box>
-//   );
-// }
-
-
-
 "use client";
 
 import { useParams } from "next/navigation";
@@ -108,15 +12,30 @@ import {
   Divider,
   Paper,
   IconButton,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function MovieProfilePage() {
+export default function SeriesProfilePage() {
   const { id } = useParams();
-  const [movie, setMovie] = useState(null);
+  const [series, setSeries] = useState(null);
+  const [episodes, setEpisodes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [expandedSeason, setExpandedSeason] = useState(null);
+
+  // Comment section states
+  // const [comments, setComments] = useState([]);
+  // const [newComment, setNewComment] = useState("");
+  // const [commentLoading, setCommentLoading] = useState(false);
+  // const [editingCommentId, setEditingCommentId] = useState(null);
+  // const [editedContent, setEditedContent] = useState("");
+  // const [token, setToken] = useState(null);
+  // const [userId, setUserId] = useState(null);
 
   // --- Comment Section ---
   const [comments, setComments] = useState([]);
@@ -135,50 +54,97 @@ export default function MovieProfilePage() {
       ? JSON.parse(localStorage.getItem("user"))?.id
       : null;
 
-  // Fetch movie
+  // Initialize client-side only values
+  // useEffect(() => {
+  //   setToken(localStorage.getItem("token"));
+  //   const userData = localStorage.getItem("user");
+  //   if (userData) {
+  //     try {
+  //       setUserId(JSON.parse(userData)?.id);
+  //     } catch (e) {
+  //       console.error("Error parsing user data:", e);
+  //     }
+  //   }
+  // }, []);
+
+  // Fetch series details
   useEffect(() => {
     if (!id) return;
 
-    async function fetchMovie() {
+    async function fetchSeries() {
       try {
-        const movieId = parseInt(id, 10);
-        if (isNaN(movieId)) throw new Error("Invalid movie ID");
+        console.log("Fetching series with ID:", id);
+        const seriesId = parseInt(id, 10);
+        if (isNaN(seriesId)) throw new Error("Invalid series ID");
 
-        const res = await fetch(`http://localhost:8008/movie/${movieId}`);
-        if (!res.ok) throw new Error("Movie not found");
+        const res = await fetch(`http://localhost:8008/series/${seriesId}`);
+        console.log("Series response status:", res.status);
+        
+        if (!res.ok) throw new Error("Series not found");
 
         const data = await res.json();
-        setMovie(data.movie_detail);
+        console.log("Series detail data:", data);
+        setSeries(data.series_detail);
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching series:", err);
         setError(true);
       } finally {
         setLoading(false);
       }
     }
 
-    fetchMovie();
+    fetchSeries();
   }, [id]);
 
-  // Fetch comments
+  // Fetch episodes
   useEffect(() => {
     if (!id) return;
+    
+    async function fetchEpisodes() {
+      try {
+        const res = await fetch(`http://localhost:8008/series/${id}/episodes`);
+        if (res.ok) {
+          const data = await res.json();
+          console.log("Episodes data:", data);
+          setEpisodes(data);
+        }
+      } catch (err) {
+        console.error("Error fetching episodes:", err);
+      }
+    }
+
+    fetchEpisodes();
+  }, [id]);
+
+  // Fetch comments - only after token is set
+  useEffect(() => {
+    if (!id || !token) return;
+    
     async function fetchComments() {
       try {
-        const res = await fetch(`http://localhost:8008/movies/${id}/comments`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        const res = await fetch(`http://localhost:8008/series/${id}/comments`, {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        if (!res.ok) throw new Error("Failed to load comments");
-        const data = await res.json();
-        setComments(data.comments || []);
+        if (res.ok) {
+          const data = await res.json();
+          setComments(data.comments || []);
+        }
       } catch (err) {
-        console.error(err);
+        console.error("Error fetching comments:", err);
       }
     }
     fetchComments();
   }, [id, token]);
 
-  // Add new comment
+  // Group episodes by season
+  const episodesBySeason = episodes.reduce((acc, episode) => {
+    const season = episode.season_number;
+    if (!acc[season]) acc[season] = [];
+    acc[season].push(episode);
+    return acc;
+  }, {});
+
+  // Comment functions
   const handleAddComment = async () => {
     if (!token) {
       alert("Please log in to comment.");
@@ -194,7 +160,7 @@ export default function MovieProfilePage() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ movie_id: parseInt(id), content: newComment }),
+        body: JSON.stringify({ series_id: parseInt(id), content: newComment }),
       });
 
       if (!res.ok) throw new Error("Failed to post comment");
@@ -210,13 +176,11 @@ export default function MovieProfilePage() {
     }
   };
 
-  // Start editing a comment
   const handleEditComment = (commentId, oldContent) => {
     setEditingCommentId(commentId);
     setEditedContent(oldContent);
   };
 
-  // Save edited comment
   const handleSaveEdit = async (commentId) => {
     if (!editedContent.trim()) return;
 
@@ -245,7 +209,6 @@ export default function MovieProfilePage() {
     }
   };
 
-  // Delete comment
   const handleDeleteComment = async (commentId) => {
     if (!confirm("Are you sure you want to delete this comment?")) return;
 
@@ -266,13 +229,23 @@ export default function MovieProfilePage() {
     }
   };
 
-  if (loading) return <CircularProgress sx={{ mt: 5, ml: 5 }} />;
-  if (error || !movie)
+  if (loading) {
     return (
-      <Typography sx={{ mt: 5 }} color="error">
-        Movie not found
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+        <CircularProgress />
+      </Box>
     );
+  }
+
+  if (error || !series) {
+    return (
+      <Box sx={{ textAlign: 'center', mt: 5 }}>
+        <Typography color="error">
+          Series not found
+        </Typography>
+      </Box>
+    );
+  }
 
   return (
     <Box
@@ -289,56 +262,140 @@ export default function MovieProfilePage() {
         color: "#fff",
       }}
     >
-      {/* Movie Info Section */}
+      {/* Series Info Section */}
       <Box sx={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
         <Box sx={{ minWidth: 300, flexShrink: 0 }}>
           <Box
             component="img"
-            src={movie.poster_url}
-            alt={movie.title}
+            src={series.poster_url || '/placeholder-poster.jpg'}
+            alt={series.title}
             sx={{ width: 300, borderRadius: 2, mb: 2 }}
+            onError={(e) => {
+              e.target.src = '/placeholder-poster.jpg';
+            }}
           />
           <Button
             variant="contained"
             color="primary"
-            sx={{ width: "70%" }}
+            sx={{ width: "70%", mb: 1 }}
             onClick={() => window.open("https://www.youtube.com/", "_blank")}
           >
-            Watch Now
+            Watch Trailer
           </Button>
         </Box>
 
         <Box sx={{ flex: 1, minWidth: 300 }}>
           <Typography variant="h3" fontWeight="bold" gutterBottom>
-            {movie.title}
+            {series.title}
           </Typography>
 
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1, mb: 2 }}>
-            {Array.isArray(movie.genre) &&
-              movie.genre.map((g) => <Chip key={g} label={g} color="primary" />)}
+            {Array.isArray(series.genre) &&
+              series.genre.map((g) => <Chip key={g} label={g} color="primary" />)}
           </Box>
 
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
-            <strong>Director:</strong> {movie.director || "Unknown"}
+            <strong>Director:</strong> {series.director || "Unknown"}
           </Typography>
 
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             <strong>Casts:</strong>{" "}
-            {Array.isArray(movie.casts)
-              ? movie.casts.join(", ")
-              : movie.casts || "Unknown"}
+            {Array.isArray(series.casts)
+              ? series.casts.join(", ")
+              : series.casts || "Unknown"}
           </Typography>
 
           <Typography variant="subtitle1" sx={{ mb: 1 }}>
             <strong>IMDB Rating:</strong>{" "}
-            {movie.imdb_rating ? movie.imdb_rating.toFixed(1) : "Unknown"}
+            {series.imdb_rating ? series.imdb_rating.toFixed(1) : "Unknown"}
+          </Typography>
+
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+            <strong>Seasons:</strong> {series.total_seasons || 1}
+          </Typography>
+
+          <Typography variant="subtitle1" sx={{ mb: 1 }}>
+            <strong>Total Episodes:</strong> {series.total_episodes || 1}
           </Typography>
 
           <Typography variant="body1" sx={{ mt: 2 }}>
-            {movie.description || "No description available."}
+            {series.description || "No description available."}
           </Typography>
         </Box>
       </Box>
+
+      {/* Episodes Section */}
+      {/* <Divider sx={{ borderColor: "#444", my: 4 }} />
+      <Box>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Episodes
+        </Typography>
+
+        {Object.keys(episodesBySeason).length === 0 ? (
+          <Typography>No episodes available.</Typography>
+        ) : (
+          Object.keys(episodesBySeason)
+            .sort((a, b) => a - b)
+            .map((season) => (
+              <Accordion
+                key={season}
+                expanded={expandedSeason === season}
+                onChange={() => setExpandedSeason(expandedSeason === season ? null : season)}
+                sx={{ backgroundColor: "#2b2b2b", color: "#fff", mb: 2 }}
+              >
+                <AccordionSummary expandIcon={<ExpandMoreIcon sx={{ color: "#fff" }} />}>
+                  <Typography variant="h6">Season {season}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>
+                  {episodesBySeason[season]
+                    .sort((a, b) => a.episode_number - b.episode_number)
+                    .map((episode) => (
+                      <Box
+                        key={episode.episode_id}
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 2,
+                          p: 2,
+                          mb: 1,
+                          backgroundColor: "#1e1e1e",
+                          borderRadius: 1,
+                        }}
+                      >
+                        <Box sx={{ minWidth: 60 }}>
+                          <Typography variant="body2" color="primary">
+                            E{episode.episode_number}
+                          </Typography>
+                        </Box>
+                        <Box sx={{ flex: 1 }}>
+                          <Typography variant="subtitle1">
+                            {episode.title}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: "#aaa" }}>
+                            {episode.duration} min •{" "}
+                            {new Date(episode.release_date).toLocaleDateString()}
+                          </Typography>
+                          {episode.description && (
+                            <Typography variant="body2" sx={{ mt: 1 }}>
+                              {episode.description}
+                            </Typography>
+                          )}
+                        </Box>
+                        <Button
+                          variant="outlined"
+                          color="secondary"
+                          size="small"
+                          onClick={() => window.open(episode.video_url || "#", "_blank")}
+                        >
+                          Watch
+                        </Button>
+                      </Box>
+                    ))}
+                </AccordionDetails>
+              </Accordion>
+            ))
+        )}
+      </Box> */}
 
       {/* Comment Section */}
       <Divider sx={{ borderColor: "#444", my: 4 }} />
@@ -393,7 +450,6 @@ export default function MovieProfilePage() {
                 {comment.user?.username || "Unknown user"}
               </Typography>
 
-              {/* Inline edit box */}
               {editingCommentId === comment.comment_id ? (
                 <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
                   <TextField
@@ -439,7 +495,6 @@ export default function MovieProfilePage() {
                 {new Date(comment.created_at).toLocaleString()}
               </Typography>
 
-              {/* Edit/Delete Buttons */}
               <Box sx={{ position: "absolute", top: 8, right: 8 }}>
                 <IconButton
                   size="small"

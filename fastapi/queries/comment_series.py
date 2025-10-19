@@ -1,34 +1,33 @@
-# queries/comments.py
 from typing import List, Optional
 from database import database
 import logging
 
-logger = logging.getLogger("comments queries")
+logger = logging.getLogger("series comments queries")
 
-async def insert_comment(movie_id: int, user_id: int, content: str) -> int:
+async def insert_series_comment(series_id: int, user_id: int, content: str) -> int:
     query = """
-    INSERT INTO comments (movie_id, user_id, content)
-    VALUES (:movie_id, :user_id, :content)
+    INSERT INTO series_comments (series_id, user_id, content)
+    VALUES (:series_id, :user_id, :content)
     RETURNING comment_id
     """
     values = {
-        "movie_id": movie_id,
+        "series_id": series_id,
         "user_id": user_id,
         "content": content
     }
     result = await database.fetch_one(query, values)
     return result["comment_id"]
 
-async def get_comments_by_movie(movie_id: int) -> List[dict]:
+async def get_comments_by_series(series_id: int) -> List[dict]:
     try:
         query = """
         SELECT c.*, u.username, u.id as user_table_id
-        FROM comments c
+        FROM series_comments c
         JOIN users u ON c.user_id = u.id
-        WHERE c.movie_id = :movie_id
+        WHERE c.series_id = :series_id
         ORDER BY c.created_at DESC
         """
-        rows = await database.fetch_all(query=query, values={"movie_id": movie_id})
+        rows = await database.fetch_all(query=query, values={"series_id": series_id})
         
         formatted_comments = []
         for row in rows:
@@ -41,14 +40,14 @@ async def get_comments_by_movie(movie_id: int) -> List[dict]:
         
         return formatted_comments
     except Exception as e:
-        logger.error(f"Error fetching comments for movie {movie_id}: {str(e)}")
+        logger.error(f"Error fetching comments for series {series_id}: {str(e)}")
         return []
 
-async def get_comment_by_id(comment_id: int) -> Optional[dict]:
+async def get_series_comment_by_id(comment_id: int) -> Optional[dict]:
     try:
         query = """
         SELECT c.*, u.username, u.id as user_table_id
-        FROM comments c
+        FROM series_comments c
         JOIN users u ON c.user_id = u.id
         WHERE c.comment_id = :comment_id
         """
@@ -63,12 +62,12 @@ async def get_comment_by_id(comment_id: int) -> Optional[dict]:
             return comment_dict
         return None
     except Exception as e:
-        logger.error(f"Error fetching comment {comment_id}: {str(e)}")
+        logger.error(f"Error fetching series comment {comment_id}: {str(e)}")
         return None
 
-async def update_comment(comment_id: int, content: str) -> Optional[dict]:
+async def update_series_comment(comment_id: int, content: str) -> Optional[dict]:
     query = """
-    UPDATE comments 
+    UPDATE series_comments 
     SET content = :content, updated_at = CURRENT_TIMESTAMP
     WHERE comment_id = :comment_id
     RETURNING *
@@ -80,25 +79,24 @@ async def update_comment(comment_id: int, content: str) -> Optional[dict]:
     result = await database.fetch_one(query=query, values=values)
     return dict(result) if result else None
 
-async def delete_comment(comment_id: int) -> bool:
+async def delete_series_comment(comment_id: int) -> bool:
     try:
-        query = "DELETE FROM comments WHERE comment_id = :comment_id"
+        query = "DELETE FROM series_comments WHERE comment_id = :comment_id"
         result = await database.execute(query=query, values={"comment_id": comment_id})
         
         if result is None:
-            # Assume success if no exception was raised
             return True
         return bool(result)  
     except Exception as e:
-        logger.error(f"Error deleting comment {comment_id}: {str(e)}")
+        logger.error(f"Error deleting series comment {comment_id}: {str(e)}")
         return False
 
-async def is_comment_owner(comment_id: int, user_id: int) -> bool:
-    query = "SELECT 1 FROM comments WHERE comment_id = :comment_id AND user_id = :user_id"
+async def is_series_comment_owner(comment_id: int, user_id: int) -> bool:
+    query = "SELECT 1 FROM series_comments WHERE comment_id = :comment_id AND user_id = :user_id"
     result = await database.fetch_one(query=query, values={"comment_id": comment_id, "user_id": user_id})
     return result is not None
 
-async def check_movie_exists(movie_id: int) -> bool:
-    query = "SELECT 1 FROM movies WHERE movie_id = :movie_id"
-    result = await database.fetch_one(query=query, values={"movie_id": movie_id})
+async def check_series_exists(series_id: int) -> bool:
+    query = "SELECT 1 FROM series WHERE series_id = :series_id"
+    result = await database.fetch_one(query=query, values={"series_id": series_id})
     return result is not None
