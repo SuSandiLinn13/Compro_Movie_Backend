@@ -1,3 +1,4 @@
+# routes/series.py
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.exceptions import RequestValidationError
 from models.series import *
@@ -320,26 +321,32 @@ async def remove_episode_route(
     )
 
 
-# @seriesRouter.get("/seriesonly")
-# @handle_route_errors("Fetching series only")
-# async def series_only():
-#     data = await get_series_only()
-#     series_list = [format_series(row) for row in data]
-#     return SeriesListResponse(
-#         series=[
-#             SeriesListItem(
-#                 id=series["series_id"],
-#                 title=series["title"],
-#                 description=series["description"],
-#                 genre=series["genre"],
-#                 poster_url=series["poster_url"],
-#                 imdb_rating=series["imdb_rating"],
-#                 total_seasons=series["total_seasons"],
-#                 total_episodes=series["total_episodes"],
-#             )
-#             for series in series_list
-#         ]
-#     )
+
+@seriesRouter.get("/series/genre/{genre_name}", response_model=SeriesListResponse)
+@handle_route_errors("Fetching series by genre")
+async def get_series_by_genre_route(genre_name: str):
+    """
+    Fetch all series for a specific genre
+    """
+    data = await get_series_by_genre(genre_name)
+    series_list = [format_series(row) for row in data]
+
+    return SeriesListResponse(
+        series=[
+            SeriesListItem(
+                id=series["series_id"],
+                title=series["title"],
+                description=series["description"],
+                genre=series["genre"],
+                poster_url=series["poster_url"],
+                imdb_rating=series["imdb_rating"],
+                total_seasons=series["total_seasons"],
+                total_episodes=series["total_episodes"],
+            )
+            for series in series_list
+        ]
+    )
+
 
 
 @seriesRouter.get("/seriesonly")

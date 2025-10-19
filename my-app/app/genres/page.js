@@ -6,7 +6,7 @@ import styles from "../page.module.css";
 import { Typography, CircularProgress } from '@mui/material';
 
 export default function GenresPage() {
-  const [moviesByGenre, setMoviesByGenre] = useState({});
+  const [contentByGenre, setContentByGenre] = useState({});
   const [genres, setGenres] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -18,24 +18,33 @@ export default function GenresPage() {
   };
 
   useEffect(() => {
-    async function fetchGenresAndMovies() {
+    async function fetchGenresAndContent() {
       try {
+        // Fetch genres
         const genresRes = await fetch('http://localhost:8008/genres');
         const genresData = await genresRes.json();
         setGenres(genresData);
 
-        const moviesDataByGenre = {};
+        const genreContentMap = {};
+
+        // Fetch movies and series by genre
         for (const genre of genresData) {
-          const res = await fetch(`http://localhost:8008/genres/${genre}`);
-          if (res.ok) {
-            const data = await res.json();
-            moviesDataByGenre[genre] = data.movies;
-          } else {
-            moviesDataByGenre[genre] = [];
-          }
+          // Movies
+          const moviesRes = await fetch(`http://localhost:8008/genres/${genre}`);
+          const moviesData = moviesRes.ok ? await moviesRes.json() : { movies: [] };
+
+          // Series
+          const seriesRes = await fetch(`http://localhost:8008/series/genre/${genre}`);
+          const seriesData = seriesRes.ok ? await seriesRes.json() : { series: [] };
+
+          // Merge movies and series
+          genreContentMap[genre] = [
+            ...(moviesData.movies || []),
+            ...(seriesData.series || [])
+          ];
         }
 
-        setMoviesByGenre(moviesDataByGenre);
+        setContentByGenre(genreContentMap);
       } catch (err) {
         console.error(err);
         setError(true);
@@ -44,7 +53,7 @@ export default function GenresPage() {
       }
     }
 
-    fetchGenresAndMovies();
+    fetchGenresAndContent();
   }, []);
 
   if (loading) return <CircularProgress sx={{ mt: 5, ml: 5 }} />;
@@ -68,16 +77,16 @@ export default function GenresPage() {
       <main className={styles.mainContent}>
         {genres.map((genre) => (
           <section key={genre} id={genre} className={styles.genreSection}>
-            <h2>{genre} Movies</h2>
+            <h2>{genre}</h2>
             <div className={styles.moviesGrid}>
-              {moviesByGenre[genre]?.map((movie, index) => (
+              {contentByGenre[genre]?.map((item, index) => (
                 <Link
-                  key={`${movie.id}-${index}`} 
-                  href={`/movies/${movie.id}`}
+                  key={`${item.total_seasons ? 'series' : 'movie'}-${item.id || item.series_id}-${index}`}
+                  href={`/${item.total_seasons ? 'series' : 'movies'}/${item.id || item.series_id}`}
                   className={styles.movieCard}
                 >
-                  <img src={movie.poster_url} alt={movie.title} />
-                  <p>{movie.title}</p>
+                  <img src={item.poster_url} alt={item.title} />
+                  <p>{item.title}</p>
                 </Link>
               ))}
             </div>

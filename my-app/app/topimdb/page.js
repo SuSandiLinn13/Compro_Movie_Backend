@@ -1,4 +1,3 @@
-// app/topimdb/page.js
 "use client";
 
 import React, { useEffect, useState } from "react";
@@ -6,47 +5,42 @@ import Link from "next/link";
 import styles from "../page.module.css";
 
 const TopIMDbPage = () => {
-  const [movies, setMovies] = useState([]);
+  const [content, setContent] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchMovies = async () => {
+    const fetchContent = async () => {
       try {
-        const res = await fetch("http://localhost:8008/movies");
-        const data = await res.json();
+        const moviesRes = await fetch("http://localhost:8008/movies");
+        const moviesData = await moviesRes.json();
+        const moviesArray = Array.isArray(moviesData) ? moviesData : moviesData.movies || [];
 
-        const moviesArray = Array.isArray(data) ? data : data.movies;
-        if (!Array.isArray(moviesArray)) {
-          console.error("Movies data is not an array:", data);
-          setMovies([]);
-          setLoading(false);
-          return;
-        }
+        const seriesRes = await fetch("http://localhost:8008/series");
+        const seriesData = await seriesRes.json();
+        const seriesArray = Array.isArray(seriesData) ? seriesData : seriesData.series || [];
 
-        // Sort by IMDb rating descending
-        const sortedMovies = moviesArray.sort(
-          (a, b) => b.imdb_rating - a.imdb_rating
-        );
+        const combined = [...moviesArray, ...seriesArray];
+        combined.sort((a, b) => (b.imdb_rating || 0) - (a.imdb_rating || 0));
 
-        setMovies(sortedMovies);
+        setContent(combined);
       } catch (err) {
-        console.error("Failed to fetch movies:", err);
+        console.error("Failed to fetch content:", err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchMovies();
+    fetchContent();
   }, []);
 
-  if (loading) return <p style={{ padding: "2rem" }}>Loading movies...</p>;
+  if (loading) return <p style={{ padding: "2rem" }}>Loading content...</p>;
 
-  const topThree = movies.slice(0, 3);
-  const others = movies.slice(3);
+  const topFive = content.slice(0, 5);
+  const others = content.slice(5);
 
   const sections = [
-    { title: "Top 3 IMDb Ranking", movies: topThree },
-    { title: "Other Movies", movies: others },
+    { title: "Top 5 IMDb Ranking", movies: topFive},
+    { title: "Other Movies & Series", movies: others },
   ];
 
   return (
@@ -55,14 +49,14 @@ const TopIMDbPage = () => {
         <section key={section.title} className={styles.genreSection}>
           <h2>{section.title}</h2>
           <div className={styles.moviesGrid}>
-            {section.movies.map((movie, index) => (
+            {section.movies.map((item, index) => (
               <Link
-                key={`${movie.id}-${index}`}
-                href={`/movies/${movie.id}`}
+                key={`${item.id || item.series_id}-${index}`}
+                href={`/${item.total_seasons ? "series" : "movies"}/${item.id || item.series_id}`}
                 className={styles.movieCard}
               >
-                <img src={movie.poster_url} alt={movie.title} />
-                <p>{movie.title}</p>
+                <img src={item.poster_url} alt={item.title} />
+                <p>{item.title}</p>
               </Link>
             ))}
           </div>
@@ -71,6 +65,5 @@ const TopIMDbPage = () => {
     </main>
   );
 };
-
 
 export default TopIMDbPage;

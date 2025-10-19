@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { TextField, Button, Grid, Paper, Snackbar, Alert, Typography, Link, InputAdornment, IconButton } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -22,30 +23,31 @@ export default function LoginPage() {
   const handleLoginSubmit = async (e) => {
   e.preventDefault();
   try {
-    const response = await fetch("http://localhost:8008/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: loginEmail, password: loginPassword }),
-    });
+  const response = await axios.post("http://localhost:8008/login", {
+    email: loginEmail,
+    password: loginPassword,
+  });
 
-    const data = await response.json();
+  const data = response.data;
 
-    if (!response.ok) throw new Error(data.detail || "Login failed");
+  // ✅ Save real access token
+  localStorage.setItem("token", data.access_token);
+  localStorage.setItem("username", data.user?.username || data.username);
 
-    // ✅ Save real access token
-    localStorage.setItem("token", data.access_token); 
-    localStorage.setItem("username", data.user?.username || data.username);
+  setSnackbarMessage("Login successful!");
+  setSnackbarSeverity("success");
+  setOpenSnackbar(true);
 
-    setSnackbarMessage("Login successful!");
-    setSnackbarSeverity("success");
-    setOpenSnackbar(true);
+  router.push("/home"); // redirect to home page
+} catch (error) {
+  // Axios errors are wrapped in error.response
+  const message =
+    error.response?.data?.detail || error.message || "Login failed";
 
-    router.push("/home"); // redirect to home page
-  } catch (error) {
-    setSnackbarMessage(error.message);
-    setSnackbarSeverity("error");
-    setOpenSnackbar(true);
-  }
+  setSnackbarMessage(message);
+  setSnackbarSeverity("error");
+  setOpenSnackbar(true);
+}
 };
 
 

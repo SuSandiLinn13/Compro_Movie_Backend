@@ -1,3 +1,4 @@
+//app/home/page.js
 "use client";
 
 import { useEffect, useState } from "react";
@@ -9,6 +10,7 @@ import { Button, Snackbar, Alert } from "@mui/material";
 export default function HomePage() {
   const router = useRouter();
   const [movies, setMovies] = useState([]);
+  const [series, setSeries] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
@@ -31,6 +33,20 @@ export default function HomePage() {
       }
     }
     fetchMovies();
+  }, []);
+
+  // Fetch series
+  useEffect(() => {
+    async function fetchSeries() {
+      try {
+        const res = await fetch("http://localhost:8008/series");
+        const data = await res.json();
+        if (Array.isArray(data.series)) setSeries(data.series);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchSeries();
   }, []);
 
   // Fetch user favorites
@@ -224,54 +240,56 @@ export default function HomePage() {
       )}
 
       {/* All Movies / Trending */}
-      <section className={styles.genreSection}>
-        <h2 style={{ color: "#fff", marginBottom: "20px" }}>Trending Movies & Series</h2>
-        <div className={styles.moviesGrid}>
-          {movies.map((movie) => (
-            <div key={movie.id} className={styles.movieCard}>
-              <Link href={`/movies/${movie.id}`}>
-                <img src={movie.poster_url} alt={movie.title} />
-                <p>{movie.title}</p>
-              </Link>
-              {isInFavorites(movie.id) ? (
-                <button
-                  onClick={() => handleRemoveFromFavorites(movie.id)}
-                  style={{
-                    backgroundColor: "#ff4444",
-                    color: "white",
-                    border: "none",
-                    padding: "10px 16px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    width: "100%",
-                    fontSize: "14px",
-                    marginTop: "8px",
-                  }}
-                >
-                  ❤️ Remove from Favorites
-                </button>
-              ) : (
-                <button
-                  onClick={() => handleAddToFavorites(movie)}
-                  style={{
-                    backgroundColor: "#4CAF50",
-                    color: "white",
-                    border: "none",
-                    padding: "10px 16px",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                    width: "100%",
-                    fontSize: "14px",
-                    marginTop: "8px",
-                  }}
-                >
-                  🤍 Add to Favorites
-                </button>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
+<section className={styles.genreSection}>
+  <h2 style={{ color: "#fff", marginBottom: "20px" }}>Trending Movies & Series</h2>
+  <div className={styles.moviesGrid}>
+    {[...movies, ...series].map((item) => (
+      <div key={item.id || item.series_id} className={styles.movieCard}>
+        <Link href={`/${item.total_seasons ? "series" : "movies"}/${item.id || item.series_id}`}>
+          <img src={item.poster_url} alt={item.title} />
+          <p>{item.title}</p>
+        </Link>
+
+        {isInFavorites(item.id || item.series_id) ? (
+          <button
+            onClick={() => handleRemoveFromFavorites(item.id || item.series_id)}
+            style={{
+              backgroundColor: "#ff4444",
+              color: "white",
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: "4px",
+              cursor: "pointer",
+              width: "100%",
+              fontSize: "14px",
+              marginTop: "8px",
+            }}
+          >
+            ❤️ Remove from Favorites
+          </button>
+        ) : (
+          <button
+            onClick={() => handleAddToFavorites(item)}
+            style={{
+              backgroundColor: "#4CAF50",
+              color: "white",
+              border: "none",
+              padding: "10px 16px",
+              borderRadius: "4px",
+              cursor: "pointer",
+              width: "100%",
+              fontSize: "14px",
+              marginTop: "8px",
+            }}
+          >
+            🤍 Add to Favorites
+          </button>
+        )}
+      </div>
+    ))}
+  </div>
+</section>
+
 
       {/* Logout Button */}
       <div style={{ textAlign: "center", marginTop: "40px", margin: "40px 40px" }}>

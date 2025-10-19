@@ -10,7 +10,7 @@ from routes.comment_series import seriesCommentRouter
 from database import connect_db, disconnect_db, init_db
 from typing import Optional
 # Comment out the problematic import for now
-from routes.recently_watched import recentlyWatchedRouter
+# from routes.recently_watched import recentlyWatchedRouter
 
 # Create FastAPI app
 app = FastAPI()
@@ -25,7 +25,7 @@ app.add_middleware(
 
 # --- Routers ---
 appRouter = APIRouter()
-app.include_router(recentlyWatchedRouter)  # Comment this out for now
+# app.include_router(recentlyWatchedRouter)  # Comment this out for now
 
 @appRouter.get("/")
 def read_root():

@@ -22,29 +22,6 @@ async def register_user(user: UserCreate):
         )
     return UserOut(**response)
 
-# @userRouter.post("/login", response_model=TokenResponse)
-# async def signin_user(user: UserLogin):
-#     logger.info("Log in user .......")
-#     user_data = await get_user_by_username(user.username)
-#     if not user_data:
-#         logger.warning("User not found....")
-#         raise HTTPException(
-#             status_code = status.HTTP_401_UNAUTHORIZED, detail='user not found'
-#         )
-#     if not verify_password(user.password, user_data["password"]):
-#         logger.warning("Invalid Credentials...")
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials"
-#         )
-#     access_token = create_access_token(
-#         data = {"sub": str(user_data["id"])}, remember_me= user.remember_me
-#     )
-#     logger.info(f"Login successful for {user_data['id']}")
-#     return {
-#         "access_token": access_token,
-#         "token_type": "bearer",
-#         "username": user_data["username"],
-#     }
 
 @userRouter.post("/login", response_model=TokenResponse)
 async def signin_user(user: UserLogin):
@@ -80,27 +57,6 @@ async def signout_user(current_user: int = Depends(get_current_user)):
 
 
 
-# @userRouter.post("/login")
-# async def login_user(user: UserLogin):
-#     # find user by email
-#     query = "SELECT * FROM users WHERE email = :email"
-#     existing_user = await database.fetch_one(query, {"email": user.email})
-
-#     if not existing_user:
-#         raise HTTPException(status_code=404, detail="User not found")
-
-#     # check password match
-#     if not bcrypt.verify(user.password, existing_user["password"]):
-#         raise HTTPException(status_code=401, detail="Incorrect password")
-
-#     return {
-#         "message": "Login successful",
-#         "user": {
-#             "id": existing_user["id"],
-#             "username": existing_user["username"],
-#             "email": existing_user["email"],
-#         },
-#     }
 
 @userRouter.get("/users/me", response_model=UserOut)
 async def get_logged_in_user(current_user: dict = Depends(get_current_user)):

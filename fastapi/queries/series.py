@@ -1,3 +1,4 @@
+# queries/series.py
 from typing import Any, Optional, List
 from database import database
 from datetime import date

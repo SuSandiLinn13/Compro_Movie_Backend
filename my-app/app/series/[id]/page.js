@@ -280,7 +280,7 @@ export default function SeriesProfilePage() {
             sx={{ width: "70%", mb: 1 }}
             onClick={() => window.open("https://www.youtube.com/", "_blank")}
           >
-            Watch Trailer
+            Watch Now
           </Button>
         </Box>
 
@@ -318,7 +318,7 @@ export default function SeriesProfilePage() {
             <strong>Total Episodes:</strong> {series.total_episodes || 1}
           </Typography>
 
-          <Typography variant="body1" sx={{ mt: 2 }}>
+          <Typography variant="body1" sx={{ mt: 2 , width: 1100}}>
             {series.description || "No description available."}
           </Typography>
         </Box>
